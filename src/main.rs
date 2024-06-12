@@ -1,9 +1,14 @@
-mod arithmetic;
+mod arith;
+
 use clap::{Arg, Command};
+
 fn main() {
     let matches = Command::new("CLI Calculator")
+        .version("1.0")
+        .author("Your Name <your.email@example.com>")
+        .about("Performs basic arithmetic operations")
         .arg(Arg::new("operation")
-            .help("The operation to perform: add, subtract, multiply, divide")
+            .help("The operation to perform: add, sub, mul, div")
             .required(true)
             .index(1))
         .arg(Arg::new("a")
@@ -16,48 +21,26 @@ fn main() {
             .index(3))
         .get_matches();
 
-        let a: f64 = match matches.get_one::<String>("operand1") {
-            Some(val) => match val.parse() {
-                Ok(num) => num,
-                Err(_) => {
-                    eprintln!("Error: Invalid number for operand1.");
-                    std::process::exit(1);
-                }
-            },
-            None => {
-                eprintln!("Error: Operand1 is missing.");
-                std::process::exit(1);
-            }
-        };
-    
-        let b: f64 = match matches.get_one::<String>("operand2") {
-            Some(val) => match val.parse() {
-                Ok(num) => num,
-                Err(_) => {
-                    eprintln!("Error: Invalid number for operand2.");
-                    std::process::exit(1);
-                }
-            },
-            None => {
-                eprintln!("Error: Operand2 is missing.");
-                std::process::exit(1);
-            }
-        };
-    let operation = match matches.get_one::<String>("operation") {
-        Some(op) => op,
-        None => {
-            eprintln!("Error: Operation not provided. Use -o to specify the operation.");
-            std::process::exit(1);
-        }
-    };
+    let a: f64 = matches.get_one::<String>("a")
+        .expect("required argument")
+        .parse()
+        .expect("Invalid number for operand a");
+    let b: f64 = matches.get_one::<String>("b")
+        .expect("required argument")
+        .parse()
+        .expect("Invalid number for operand b");
+
+    let operation = matches.get_one::<String>("operation")
+        .expect("required argument");
+
     match operation.as_str() {
-        "add" | "+" => println!("{}", arithmetic::add(a, b)),
-        "subtract" | "-" => println!("{}", arithmetic::subtract(a, b)),
-        "multiply" | "*" => println!("{}", arithmetic::multiply(a, b)),
-        "divide" | "/"=> match arithmetic::divide(a, b) {
+        "add" | "+" => println!("{}", arith::add(a, b)),
+        "sub" | "-" => println!("{}", arith::subtract(a, b)),
+        "mul" | "*" => println!("{}", arith::multiply(a, b)),
+        "div" | "/" => match arith::divide(a, b) {
             Ok(result) => println!("{}", result),
             Err(e) => eprintln!("Error: {}", e),
         },
-        _ => eprintln!("Invalid operation. Use add, subtract, multiply, or divide."),
+        _ => eprintln!("Invalid operation. Use add, sub, mul, or div."),
     }
 }
